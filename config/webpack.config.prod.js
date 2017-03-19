@@ -1,3 +1,4 @@
+// paths contains all our app paths so we don't need to generate them each time using `path` lib
 const paths = require('./paths')
 const webpack = require('webpack')
 
@@ -29,7 +30,7 @@ const plugins = [
   }),
   new webpack.optimize.CommonsChunkPlugin({
     name: 'vendor',
-    filename: 'vendor.bundle.js',
+    filename: 'static/js/[name].[hash:8].vendor.bundle.js',
     minChunks: Infinity
   }),
   new webpack.optimize.AggressiveMergingPlugin(),
@@ -52,7 +53,7 @@ module.exports = {
     ]
   },
   output: {
-    filename: 'bundle.js',
+    filename: 'static/js/[name].[hash:8].bundle.js',
     path: paths.appBuild,
     publicPath: '/'
   },
@@ -62,6 +63,7 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
+        // that's how we should chain loaders in webpack2 instead of old `babel!awesome-typescript-loader` way
         use: [
           {
             loader: 'babel-loader'
@@ -113,7 +115,7 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
+    extensions: ['.ts', '.tsx', '.ts', '.js'],
     // Fix webpack's default behavior to not load packages with jsnext:main module
     // https://github.com/Microsoft/TypeScript/issues/11677
     mainFields: ['main']
