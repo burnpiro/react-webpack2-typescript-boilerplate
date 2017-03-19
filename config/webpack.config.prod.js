@@ -30,7 +30,7 @@ const plugins = [
   }),
   new webpack.optimize.CommonsChunkPlugin({
     name: 'vendor',
-    filename: 'static/js/[name].[hash:8].vendor.bundle.js',
+    filename: 'static/js/[name].[hash:8].bundle.js',
     minChunks: Infinity
   }),
   new webpack.optimize.AggressiveMergingPlugin(),
