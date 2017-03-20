@@ -5,6 +5,7 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
+const ManifestPlugin = require('webpack-manifest-plugin')
 
 const cssFilename = 'styles.css'
 process.env.NODE_ENV = 'development'
@@ -86,6 +87,10 @@ const plugins = [
       screw_ie8: true
     },
     sourceMap: true
+  }),
+  // Generate a manifest file which contains a mapping of all asset filenames
+  new ManifestPlugin({
+    fileName: 'asset-manifest.json'
   })
 ]
 
