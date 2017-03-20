@@ -1,10 +1,7 @@
 'use strict'
 
-const config = require('./webpack.config.dev')
 const paths = require('./paths')
 
-const protocol = process.env.HTTPS === 'true' ? 'https' : 'http'
-const host = process.env.HOST || 'localhost'
 const port = process.env.POST || 3000
 
 module.exports = {

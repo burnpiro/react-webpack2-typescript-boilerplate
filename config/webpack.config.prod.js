@@ -28,23 +28,73 @@ const plugins = [
       ]
     }
   }),
+  // Makes some environment variables available to the JS code
+  new webpack.DefinePlugin({
+    'process.env': {
+      NODE_ENV: JSON.stringify('production')
+    }
+  }),
   new webpack.optimize.CommonsChunkPlugin({
     name: 'vendor',
-    filename: 'static/js/[name].[hash:8].bundle.js',
+    filename: 'static/js/[name].[hash:8].bundle.min.js',
     minChunks: Infinity
   }),
   new webpack.optimize.AggressiveMergingPlugin(),
   new ExtractTextPlugin({
-    filename: cssFilename,
-    disable: false
+    filename: cssFilename
   }),
+  // Generates an `index.html` file with the <script> injected.
   new HtmlWebpackPlugin({
-    template: paths.appHtml
+    inject: true,
+    template: paths.appHtml,
+    minify: {
+      removeComments: true,
+      collapseWhitespace: true,
+      removeRedundantAttributes: true,
+      useShortDoctype: true,
+      removeEmptyAttributes: true,
+      removeStyleLinkTypeAttributes: true,
+      keepClosingSlash: true,
+      minifyJS: true,
+      minifyCSS: true,
+      minifyURLs: true
+    }
+  }),
+  new webpack.LoaderOptionsPlugin({
+    minimize: true,
+    debug: false
+  }),
+  // Minify the code.
+  new webpack.optimize.UglifyJsPlugin({
+    compress: {
+      warnings: false,
+      screw_ie8: true,
+      conditionals: true,
+      unused: true,
+      comparisons: true,
+      sequences: true,
+      dead_code: true,
+      evaluate: true,
+      if_return: true,
+      join_vars: true
+    },
+    mangle: {
+      screw_ie8: true
+    },
+    output: {
+      comments: false,
+      screw_ie8: true
+    },
+    sourceMap: true
   })
 ]
 
 module.exports = {
+  // Don't attempt to continue if there are any errors.
+  bail: true,
   context: paths.appSrc,
+  devtool: 'source-map',
+  target: 'web',
   entry: {
     main: paths.appIndexTs,
     vendor: [
@@ -53,23 +103,39 @@ module.exports = {
     ]
   },
   output: {
-    filename: 'static/js/[name].[hash:8].bundle.js',
+    filename: 'static/js/[name].[hash:8].bundle.min.js',
     path: paths.appBuild,
     publicPath: '/'
   },
-  devtool: 'source-map',
-  target: 'web',
   module: {
     rules: [
+      // First, run the linter.
+      // It's important to do this before Babel processes the JS.
+      {
+        test: /\.tsx?$/,
+        enforce: 'pre',
+        loader: 'tslint-loader',
+        include: paths.appSrc,
+        options: {
+          emitErrors: true,
+          failOnHint: true
+        }
+      },
       {
         test: /\.tsx?$/,
         // that's how we should chain loaders in webpack2 instead of old `babel!awesome-typescript-loader` way
         use: [
           {
-            loader: 'babel-loader'
+            loader: 'babel-loader',
+            options: {
+              presets: [[ 'es2015', { modules: false } ], 'react']
+            }
           },
           {
-            loader: 'awesome-typescript-loader'
+            loader: 'awesome-typescript-loader',
+            options: {
+              configFileName: 'tsconfig.prod.json'
+            }
           }
         ]
       },
@@ -126,5 +192,11 @@ module.exports = {
     // https://github.com/webpack/webpack-dev-server/issues/60#issuecomment-103411179
     fs: 'empty',
     net: 'empty'
+  },
+
+  performance: {
+    maxAssetSize: 100,
+    maxEntrypointSize: 300,
+    hints: 'warning'
   }
 }

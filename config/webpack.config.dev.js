@@ -5,10 +5,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 
-const cssFilename = 'styles.css'
 process.env.NODE_ENV = 'development'
 process.env.PUBLIC_URL = ''
 
+const cssFilename = 'static/css/[name].[contenthash:8].css'
 const plugins = [
   // Makes some environment variables available in index.html.
   // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
@@ -27,49 +27,61 @@ const plugins = [
       ]
     }
   }),
-  new webpack.optimize.CommonsChunkPlugin({
-    name: 'vendor',
-    filename: 'static/js/[name].[hash:8].bundle.js',
-    minChunks: Infinity
-  }),
-  new webpack.optimize.AggressiveMergingPlugin(),
-  new ExtractTextPlugin({
-    filename: cssFilename,
-    disable: false
+  new webpack.DefinePlugin({
+    'process.env': {
+      NODE_ENV: JSON.stringify(process.env.NODE_ENV)
+    }
   }),
   new HtmlWebpackPlugin({
     template: paths.appHtml
-  })
+  }),
+  // disable because hot replace won't work :(
+  new ExtractTextPlugin({
+    filename: cssFilename,
+    disable: true
+  }),
+  // enable HMR globally
+  new webpack.HotModuleReplacementPlugin(),
+  // prints more readable module names in the browser console on HMR updates
+  new webpack.NamedModulesPlugin()
 ]
 
 module.exports = {
-  context: paths.appSrc,
-  entry: {
-    main: paths.appIndexTs,
-    vendor: [
-      'react',
-      'react-dom'
-    ]
-  },
+  devtool: 'source-map',
+  target: 'web',
+  entry: [
+    'react-hot-loader/patch',
+    'webpack-dev-server/client?http://localhost:3000',
+    'webpack/hot/only-dev-server',
+    paths.appIndexTs
+  ],
   output: {
     filename: 'static/js/[name].[hash:8].bundle.js',
     path: paths.appBuild,
     publicPath: '/'
   },
-  devtool: 'source-map',
-  target: 'web',
   module: {
     rules: [
+      // First, run the linter.
+      // It's important to do this before Babel processes the JS.
+      {
+        test: /\.tsx?$/,
+        enforce: 'pre',
+        loader: 'tslint-loader',
+        include: paths.appSrc
+      },
+      {
+        test: /\.jsx?$/,
+        enforce: 'pre',
+        loader: 'source-map-loader',
+        exclude: /(node_modules)/
+      },
       {
         test: /\.tsx?$/,
         // typescript code goes through chain of loaders `awesome-typescript-loader` first
-        // we're compiling it to es6 so babel can process it
         use: [
           {
-            loader: 'react-hot-loader'
-          },
-          {
-            loader: 'babel-loader'
+            loader: 'react-hot-loader/webpack'
           },
           {
             loader: 'awesome-typescript-loader'

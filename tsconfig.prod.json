@@ -1,0 +1,7 @@
+{
+  // we need to configs because production build is using babel to compile es6 and don't want to parse jsx by typescript
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve"
+  }
+}
