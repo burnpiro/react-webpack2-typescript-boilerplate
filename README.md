@@ -24,3 +24,4 @@ Command | Notes
 `start` | Starts the server in development mode on port `3000`
 `prod` | (`yarn run build` first) Starts the server in production mode on port `9000`
 `build` | Builds a production version into `build/` folder
+`test` | Run unit tests using `jest`

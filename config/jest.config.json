@@ -1,0 +1,25 @@
+{
+  "collectCoverageFrom": [
+    "src/**/*.{ts,tsx}",
+    "!src/**/index.tsx",
+    "!src/**/*.d.{ts,tsx}",
+    "!**/node_modules/**"
+  ],
+  "testPathIgnorePatterns": [
+    "<rootDir>[/\\\\](build|docs|node_modules|scripts)[/\\\\]"
+  ],
+  "testEnvironment": "node",
+  "testURL": "http://localhost",
+  "transform": {
+    "^.+\\.(ts|tsx)$": "<rootDir>/config/tsTransform.js",
+    "^.+\\.css$": "<rootDir>/config/cssTransform.js",
+    "^(?!.*\\.(js|jsx|css|json)$)": "<rootDir>/config/fileTransform.js"
+  },
+  "transformIgnorePatterns": [
+    "[/\\\\]node_modules[/\\\\].+\\.(ts|tsx)$"
+  ],
+  "moduleFileExtensions": ["ts", "tsx", "js"],
+  "testMatch": [
+    "**/*.test.(ts|tsx|js)"
+  ]
+}
